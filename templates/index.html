@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budžeta plānotājs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <h1>Budžeta plānotājs</h1>
+            <button id="theme-toggle" type="button">🌙 Dark mode</button>
+        </div>
+
+        <nav class="menu">
+            <a href="{{ url_for('index') }}">Sākums</a>
+            <a href="{{ url_for('bilance_lapa') }}">Bilance</a>
+        </nav>
+
+        <div class="cards">
+            <div class="card income">
+                <h3>Ienākumi</h3>
+                <p>{{ "%.2f"|format(ienakumi) }} €</p>
+            </div>
+            <div class="card expense">
+                <h3>Izdevumi</h3>
+                <p>{{ "%.2f"|format(izdevumi) }} €</p>
+            </div>
+            <div class="card balance">
+                <h3>Bilance</h3>
+                <p>{{ "%.2f"|format(bilance) }} €</p>
+            </div>
+        </div>
+
+        {% if kluda %}
+            <div class="error">{{ kluda }}</div>
+        {% endif %}
+
+        <div class="form-box">
+            <h2>Pievienot ierakstu</h2>
+            <form method="post" action="{{ url_for('pievienot') }}">
+                <input type="date" name="datums" required>
+                <input type="text" name="summa" placeholder="Summa" required>
+                <input type="text" name="apraksts" placeholder="Apraksts" required>
+
+                <select name="tips" required>
+                    <option value="Ienākums">Ienākums</option>
+                    <option value="Izdevums">Izdevums</option>
+                </select>
+
+                <button type="submit">Pievienot</button>
+            </form>
+        </div>
+
+        <div class="filter-box">
+            <h2>Filtrēšana</h2>
+            <form method="get" action="{{ url_for('index') }}">
+                <select name="filtrs">
+                    <option value="Visi" {% if filtrs == "Visi" %}selected{% endif %}>Visi</option>
+                    <option value="Ienākums" {% if filtrs == "Ienākums" %}selected{% endif %}>Tikai ienākumi</option>
+                    <option value="Izdevums" {% if filtrs == "Izdevums" %}selected{% endif %}>Tikai izdevumi</option>
+                </select>
+                <button type="submit">Filtrēt</button>
+            </form>
+        </div>
+
+        <div class="list-box">
+            <h2>Ieraksti</h2>
+
+            {% if dati %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Datums</th>
+                            <th>Tips</th>
+                            <th>Apraksts</th>
+                            <th>Summa</th>
+                            <th>Darbība</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ier in dati %}
+                        <tr>
+                            <td>{{ ier.datums }}</td>
+                            <td>{{ ier.tips }}</td>
+                            <td>{{ ier.apraksts }}</td>
+                            <td>{{ "%.2f"|format(ier.summa) }} €</td>
+                            <td>
+                                <form method="post" action="{{ url_for('dzest', ieraksta_id=ier.id) }}">
+                                    <button type="submit" class="delete-btn">Dzēst</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Nav neviena ieraksta.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById("theme-toggle");
+        const body = document.body;
+
+        function applyTheme(theme) {
+            body.classList.remove("light-mode", "dark-mode");
+            body.classList.add(theme);
+
+            if (theme === "dark-mode") {
+                themeToggle.textContent = "☀️ Light mode";
+            } else {
+                themeToggle.textContent = "🌙 Dark mode";
+            }
+        }
+
+        const savedTheme = localStorage.getItem("theme") || "light-mode";
+        applyTheme(savedTheme);
+
+        themeToggle.addEventListener("click", function () {
+            const newTheme = body.classList.contains("dark-mode") ? "light-mode" : "dark-mode";
+            localStorage.setItem("theme", newTheme);
+            applyTheme(newTheme);
+        });
+    </script>
+</body>
+</html>

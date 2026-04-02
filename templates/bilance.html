@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <h1>Bilances pārskats</h1>
+            <button id="theme-toggle" type="button">🌙 Dark mode</button>
+        </div>
+
+        <nav class="menu">
+            <a href="{{ url_for('index') }}">Sākums</a>
+            <a href="{{ url_for('bilance_lapa') }}">Bilance</a>
+        </nav>
+
+        <div class="cards">
+            <div class="card income">
+                <h3>Kopējie ienākumi</h3>
+                <p>{{ "%.2f"|format(ienakumi) }} €</p>
+            </div>
+            <div class="card expense">
+                <h3>Kopējie izdevumi</h3>
+                <p>{{ "%.2f"|format(izdevumi) }} €</p>
+            </div>
+            <div class="card balance">
+                <h3>Pašreizējā bilance</h3>
+                <p>{{ "%.2f"|format(bilance) }} €</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById("theme-toggle");
+        const body = document.body;
+
+        function applyTheme(theme) {
+            body.classList.remove("light-mode", "dark-mode");
+            body.classList.add(theme);
+
+            if (theme === "dark-mode") {
+                themeToggle.textContent = "☀️ Light mode";
+            } else {
+                themeToggle.textContent = "🌙 Dark mode";
+            }
+        }
+
+        const savedTheme = localStorage.getItem("theme") || "light-mode";
+        applyTheme(savedTheme);
+
+        themeToggle.addEventListener("click", function () {
+            const newTheme = body.classList.contains("dark-mode") ? "light-mode" : "dark-mode";
+            localStorage.setItem("theme", newTheme);
+            applyTheme(newTheme);
+        });
+    </script>
+</body>
+</html>
